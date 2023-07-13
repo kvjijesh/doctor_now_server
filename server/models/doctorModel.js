@@ -94,6 +94,13 @@ const DoctorSchema = new mongoose.Schema({
       ],
     },
   ],
+  isRegistered:{
+    type:Boolean,
+    default:false,
+  },
+  otp:{
+    type:String
+  }
 });
 
 export default mongoose.model("Doctor", DoctorSchema);
