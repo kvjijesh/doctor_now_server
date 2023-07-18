@@ -4,7 +4,6 @@ const UserSchema= new mongoose.Schema({
     name:{
         type:String,
         required:true,
-        unique:true
     },
     mobile:{
         type:Number,
@@ -25,6 +24,10 @@ const UserSchema= new mongoose.Schema({
     },
 
     is_blocked:{
+        type:Boolean,
+        default:false
+    },
+    isAdmin:{
         type:Boolean,
         default:false
     },
@@ -64,9 +67,5 @@ const UserSchema= new mongoose.Schema({
         },
 
     },
-    is_Admin:{
-        type:Boolean,
-        default:false
-    }
 })
 export default mongoose.model("User",UserSchema)

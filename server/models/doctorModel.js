@@ -4,7 +4,7 @@ const DoctorSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true,
+
   },
   mobile: {
     type: Number,
@@ -94,13 +94,7 @@ const DoctorSchema = new mongoose.Schema({
       ],
     },
   ],
-  isRegistered:{
-    type:Boolean,
-    default:false,
-  },
-  otp:{
-    type:String
-  }
+
 });
 
 export default mongoose.model("Doctor", DoctorSchema);

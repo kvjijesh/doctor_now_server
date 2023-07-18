@@ -1,11 +1,14 @@
 import express from 'express'
-import { login, verifyOtp,registerUser, logout} from '../controllers/authController.js';
+import { login, verifyOtp,registerUser, logout, registerDoctor, verifyDoctorOtp, doctorLogin, doctorlogout} from '../controllers/authController.js';
 
 const router=express.Router();
 router.post('/signup',registerUser)
 router.post('/verifyotp',verifyOtp)
 router.post('/login',login)
-router.post('/logout',logout)
-
+router.post('/logout',logout);
+router.post('/doctorsignup',registerDoctor)
+router.post('/verifydoctorotp',verifyDoctorOtp)
+router.post('/doctorlogin',doctorLogin)
+router.post('/doctorlogout',doctorlogout)
 
 export default router
