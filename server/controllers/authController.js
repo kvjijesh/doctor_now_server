@@ -76,10 +76,7 @@ export const login = async (req, res, next) => {
       process.env.JWT
     );
     const { password, ...otherDetails } = user._doc;
-    res
-
-      .status(200)
-      .json({ token,...otherDetails });
+    res.status(200).json({ token, ...otherDetails });
   } catch (err) {
     next(err);
   }
@@ -111,7 +108,6 @@ export const verifyDoctorOtp = async (req, res, next) => {
     const cacheOtp = otpDoctorCache.get(email);
     if (!doctor) return next(createError(404, "User not found"));
     if (cacheOtp.dOtp === otp) {
-      console.log("we are equal");
       const salt = bcrypt.genSaltSync(10);
       const hash = bcrypt.hashSync(doctor.password, salt);
 
@@ -135,9 +131,7 @@ export const verifyDoctorOtp = async (req, res, next) => {
 };
 
 export const logout = async (req, res) => {
-  res
-    .status(200)
-    .json({ message: "Logged out successfully" });
+  res.status(200).json({ message: "Logged out successfully" });
 };
 export const doctorlogout = async (req, res) => {
   res
@@ -159,10 +153,7 @@ export const doctorLogin = async (req, res, next) => {
       return next(createError(400, "Wrong email or password"));
     const token = jwt.sign({ id: doctor._id }, process.env.JWT);
     const { password, ...otherDetails } = doctor._doc;
-    res
-      .cookie("doctor_token", token, { maxAge: 60 * 30 * 1000, httpOnly: true })
-      .status(200)
-      .json({ ...otherDetails });
+    res.status(200).json({ token, ...otherDetails });
   } catch (err) {
     next(err);
   }

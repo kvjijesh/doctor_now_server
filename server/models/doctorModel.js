@@ -4,10 +4,9 @@ const DoctorSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-
   },
   mobile: {
-    type: Number,
+    type: String,
   },
   email: {
     type: String,
@@ -21,6 +20,9 @@ const DoctorSchema = new mongoose.Schema({
   photos: {
     type: String,
   },
+  gender: {
+    type: String,
+  },
   specialisation: {
     type: String,
   },
@@ -30,22 +32,29 @@ const DoctorSchema = new mongoose.Schema({
   services: {
     type: [String],
   },
-  address: {
-    street: {
-      type: String,
-    },
-    city: {
-      type: String,
-    },
-    state: {
-      type: String,
-    },
-    country: {
-      type: String,
-    },
-    pin: {
-      type: Number,
-    },
+  street: {
+    type: String,
+  },
+  city: {
+    type: String,
+  },
+  state: {
+    type: String,
+  },
+  country: {
+    type: String,
+  },
+  pin: {
+    type: String,
+  },
+  registrationNumber: {
+    type: String,
+  },
+  registrationCouncil: {
+    type: String,
+  },
+  registrationYear: {
+    type: String,
   },
   is_Admin: {
     type: Boolean,
@@ -71,15 +80,15 @@ const DoctorSchema = new mongoose.Schema({
     type: String,
   },
   videoChatFee: {
-    type: Number,
+    type: String,
     default: 0,
   },
   textChatFee: {
-    type: Number,
+    type: String,
     default: 0,
   },
   offlineFee: {
-    type: Number,
+    type: String,
     default: 0,
   },
   slots: [
@@ -94,7 +103,6 @@ const DoctorSchema = new mongoose.Schema({
       ],
     },
   ],
-
 });
 
 export default mongoose.model("Doctor", DoctorSchema);
