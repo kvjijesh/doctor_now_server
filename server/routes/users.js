@@ -1,6 +1,6 @@
 import express from 'express'
 import User from "../models/userModel.js"
-import { getUsers } from '../controllers/userController.js';
+import { getUsers, updateUser } from '../controllers/userController.js';
 import { verifyToken, verifyUser } from '../utils/verifyToken.js';
 
 const router=express.Router();
@@ -14,5 +14,5 @@ router.get("/authentication",verifyToken,(req,res)=>{
 router.get("/check/:id",verifyUser,(req,res)=>{
     res.send("hello user you are autherised you can update or delete")
 })
-
+router.put('/update/:id',updateUser)
 export default router

@@ -72,7 +72,7 @@ export const login = async (req, res, next) => {
     if (!isCorrectPassword)
       return next(createError(400, "Wrong email or password"));
     const token = jwt.sign(
-      { id: user._id, isAdmin: user.isAdmin },
+      { id: user._id, is_Admin: user.is_Admin },
       process.env.JWT
     );
     const { password, ...otherDetails } = user._doc;
@@ -134,10 +134,7 @@ export const logout = async (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 };
 export const doctorlogout = async (req, res) => {
-  res
-    .clearCookie("doctor_token")
-    .status(200)
-    .json({ message: "Logged out successfully" });
+  res.status(200).json({ message: "Logged out successfully" });
 };
 
 export const doctorLogin = async (req, res, next) => {

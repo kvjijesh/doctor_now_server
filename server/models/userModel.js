@@ -27,7 +27,7 @@ const UserSchema= new mongoose.Schema({
         type:Boolean,
         default:false
     },
-    isAdmin:{
+    is_Admin:{
         type:Boolean,
         default:false
     },
@@ -67,5 +67,17 @@ const UserSchema= new mongoose.Schema({
         },
 
     },
+    street:{
+        type:String
+    },
+    city:{
+        type:String
+    },
+    state:{
+        type:String
+    },
+    pin:{
+        type:String
+    }
 })
 export default mongoose.model("User",UserSchema)
