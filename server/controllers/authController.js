@@ -40,7 +40,7 @@ export const verifyOtp = async (req, res, next) => {
       console.log("we are equal");
       const salt = bcrypt.genSaltSync(10);
       const hash = bcrypt.hashSync(user.password, salt);
-      console.log(user);
+      console.log(hash);
       const newUser = new User({
         name: user.name,
         email: user.email,

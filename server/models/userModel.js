@@ -18,9 +18,8 @@ const UserSchema= new mongoose.Schema({
         type:String,
         required:true
     },
-    photos:{
+    image:{
         type:String
-
     },
 
     is_blocked:{

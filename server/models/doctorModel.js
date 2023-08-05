@@ -17,7 +17,7 @@ const DoctorSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  photos: {
+  image: {
     type: String,
   },
   gender: {
@@ -91,16 +91,15 @@ const DoctorSchema = new mongoose.Schema({
     type: String,
     default: 0,
   },
-  slots: [
+
+    is_submitted:{
+      type:Boolean,
+      default:false
+  },
+  availableSlots: [
     {
-      day: {
-        type: Date,
-      },
-      bookedSlots: [
-        {
-          type: String,
-        },
-      ],
+      date: { type: Date, required: true },
+      time: { type: String, required: true },
     },
   ],
 });

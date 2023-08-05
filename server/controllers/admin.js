@@ -1,5 +1,6 @@
 import Doctor from "../models/doctorModel.js"
 import { createError } from "../utils/error.js"
+import User from '../models/userModel.js'
 //get all doctors
 
 export const getAllDoctors=async (req,res,next)=>{
@@ -28,6 +29,19 @@ export const blockDoctor=async (req,res,next)=>{
         next(error)
     }
 }
+export const blockUser=async (req,res,next)=>{
+    const {userId}=req.params;
+    const {blockedStatus}=req.body;
+    console.log(userId,blockedStatus);
+
+    try {
+        const user= await User.findByIdAndUpdate(userId,{is_blocked:blockedStatus},{new:true});
+        if(!user) return next(createError(404, "Doctor not found"));
+        return res.status(200).json({user})
+    } catch (error) {
+        next(error)
+    }
+}
 
 export const approveDoctor=async(req,res,next)=>{
     const {doctorId}=req.params
@@ -40,4 +54,17 @@ export const approveDoctor=async(req,res,next)=>{
     } catch (error) {
         next(error)
     }
+}
+
+export const getAllUsers=async (req,res,next)=>{
+
+    try {
+
+        const allUsers=await User.find()
+        res.status(200).json(allUsers)
+
+    } catch (error) {
+        next(error)
+    }
+
 }

@@ -16,6 +16,7 @@ import cors from "cors";
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
+app.use("/images", express.static("images"));
 app.use(cookieParser())
 app.use("/",userRoute)
 app.use("/auth",authRoute)
