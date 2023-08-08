@@ -98,10 +98,14 @@ const DoctorSchema = new mongoose.Schema({
   },
   availableSlots: [
     {
-      date: { type: Date, required: true },
-      time: { type: String, required: true },
+      type: String
     },
   ],
-});
+  bookedSlots:[
+    {
+      type:String,
+    }
+  ]
+},{timestamps:true});
 
 export default mongoose.model("Doctor", DoctorSchema);

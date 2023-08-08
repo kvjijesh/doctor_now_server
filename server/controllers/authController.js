@@ -28,6 +28,21 @@ export const registerUser = async (req, res, next) => {
     next(err);
   }
 };
+
+
+export const resendOtp=async(req,res,next)=>{
+  const { name, email, password, otp } = req.body;
+  try {
+    const cOtp = await sendOtp(name, email);
+    otpCache.set(email, { cOtp });
+    res.status(200).send("OTP send");
+
+  } catch (error) {
+    next(error)
+  }
+
+}
+
 export const verifyOtp = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
@@ -42,7 +57,7 @@ export const verifyOtp = async (req, res, next) => {
       const hash = bcrypt.hashSync(user.password, salt);
       console.log(hash);
       const newUser = new User({
-        name: user.name,
+        name: user.name.charAt(0).toUpperCase()+user.name.slice(1),
         email: user.email,
         password: hash,
       });
@@ -112,7 +127,7 @@ export const verifyDoctorOtp = async (req, res, next) => {
       const hash = bcrypt.hashSync(doctor.password, salt);
 
       const newDoctor = new Doctor({
-        name: doctor.name,
+        name: doctor.name.charAt(0).toUpperCase()+doctor.name.slice(1),
         email: doctor.email,
         password: hash,
       });

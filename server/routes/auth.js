@@ -1,9 +1,10 @@
 import express from 'express'
-import { login, verifyOtp,registerUser, logout, registerDoctor, verifyDoctorOtp, doctorLogin, doctorlogout} from '../controllers/authController.js';
+import { login, verifyOtp,registerUser, logout, registerDoctor, verifyDoctorOtp, doctorLogin, doctorlogout, resendOtp} from '../controllers/authController.js';
 
 const router=express.Router();
 router.post('/signup',registerUser)
 router.post('/verifyotp',verifyOtp)
+router.post('/resend-otp',resendOtp)
 router.post('/login',login)
 router.post('/logout',logout);
 router.post('/doctorsignup',registerDoctor)
