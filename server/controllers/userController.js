@@ -2,6 +2,7 @@ import User from "../models/userModel.js";
 import Doctor from "../models/doctorModel.js";
 import Appointment from "../models/appointmentModel.js";
 import { createError } from "../utils/error.js";
+import Speciality from '../models/specialityModel.js'
 
 export const getUsers = async (req, res, next) => {
   try {
@@ -69,7 +70,7 @@ export const availableDoctors = async (req, res, next) => {
 
 export const confirmAppointment = async (req, res, next) => {
   const { doctorData, user, slot } = req.body;
-  console.log(slot)
+
   try {
     const existAppointment = await Appointment.findOne({ slot: slot });
 
@@ -88,3 +89,47 @@ export const confirmAppointment = async (req, res, next) => {
     next(error);
   }
 };
+ export const allDept= async(req,res,next)=>{
+  try {
+
+    const allDept=await Speciality.find()
+    if(!allDept) return next(createError(404,"No departments found"))
+    res.status(200).json(allDept)
+
+  } catch (error) {
+    next(error)
+  }
+ }
+
+ export const userBooking=async(req,res,next)=>{
+  const {id}=req.params;
+  console.log(id)
+  try {
+
+    const {id}=req.params;
+    const bookings = await Appointment.find({ userId: id })
+      .populate("userId")
+      .populate("doctorId")
+      .exec();
+    console.log(bookings)
+    if(!bookings) next(createError(404,"No Bookings available"));
+    res.status(200).json(bookings)
+
+  } catch (error) {
+    next(error)
+  }
+
+ }
+
+ export const cancellBooking=async(req,res,next)=>{
+  const {id}=req.params
+  try {
+    const cancell=await Appointment.findByIdAndUpdate(id,{status:"cancelled"})
+    if(!cancell) return next(createError(404,"Appointment not found"))
+    res.status(200).json("Cancelled")
+
+  } catch (error) {
+    next(error)
+
+  }
+ }

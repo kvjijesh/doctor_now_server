@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const DoctorSchema = new mongoose.Schema({
   name: {
@@ -24,7 +24,8 @@ const DoctorSchema = new mongoose.Schema({
     type: String,
   },
   specialisation: {
-    type: String,
+    // type:Schema.Types.ObjectId ,ref:"Specialisation";
+    type:String,
   },
   qualification: {
     type: [String],

@@ -1,5 +1,5 @@
 import Doctor from "../models/doctorModel.js";
-import Appointment from '../models/appointmentModel.js'
+import Appointment from "../models/appointmentModel.js";
 import { createError } from "../utils/error.js";
 export const addDoctorDetails = async (req, res, next) => {
   try {
@@ -97,13 +97,12 @@ export const addslots = async (req, res, next) => {
       return next(createError(404, "Doctor not found"));
     }
     if (doctor.availableSlots.includes(selectedDate)) {
-      return next(createError(409,'slot unavailable'))
+      return next(createError(409, "slot already exists"));
     }
     doctor.availableSlots.push(selectedDate);
     const updatedDoctor = await doctor.save();
     return res.status(200).json(updatedDoctor);
   } catch (error) {
-    console.log(error.message);
     next(error);
   }
 };
@@ -128,12 +127,26 @@ export const deleteSlot = async (req, res, next) => {
   }
 };
 
-export const appointmentList=async(req,res,next)=>{
+export const appointmentList = async (req, res, next) => {
+    const {id}=req.params;
   try {
-      const appointments=await Appointment.find();
-      if(!appointments) return next(createError(404, "Appointments not found"));
-      res.status(200).json(appointments)
+
+    const appointments = await Appointment.find({doctorId:id});
+    if (!appointments) return next(createError(404, "Appointments not found"));
+    res.status(200).json(appointments);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
+export const updateAppointment = async (req, res, next) => {
+
+  const {id}=req.params
+  const {status}=req.body
+  try {
+    const appointment= await Appointment.findByIdAndUpdate(id,{status:status},{new:true})
+    if(!appointment) return next(createError(404,"Appointment not found"))
+    res.status(200).json(appointment)
+  } catch (error) {
+    next(error);
+  }
+};

@@ -83,11 +83,13 @@ export const login = async (req, res, next) => {
     if (!user) {
       return next(createError(404, "User not found"));
     }
+     if(user.is_blocked) return next(createError(400, "Please contact admin"))
+
     const isCorrectPassword = await bcrypt.compare(pass, user.password);
     if (!isCorrectPassword)
       return next(createError(400, "Wrong email or password"));
     const token = jwt.sign(
-      { id: user._id, is_Admin: user.is_Admin },
+      { id: user._id, is_Admin: user.is_Admin ,is_blocked:user.is_blocked},
       process.env.JWT
     );
     const { password, ...otherDetails } = user._doc;
