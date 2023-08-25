@@ -26,9 +26,9 @@ const UserSchema= new mongoose.Schema({
         type:Boolean,
         default:false
     },
-    is_Admin:{
-        type:Boolean,
-        default:false
+    role:{
+        type:String,
+        default:'user'
     },
     personal_profile:{
        dob: {

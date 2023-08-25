@@ -15,6 +15,7 @@ import cors from "cors";
 //middlewares
 app.use(cors());
 app.use(logger('dev'));
+app.use('/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use("/images", express.static("images"));
 app.use(cookieParser())
@@ -38,3 +39,4 @@ const PORT=process.env.PORT||4000
 app.listen(PORT,()=>{
   console.log(`listening on port ` +PORT)
 })
+

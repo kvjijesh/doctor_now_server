@@ -17,6 +17,10 @@ const DoctorSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  role:{
+    type:String,
+    default:"doctor"
+  },
   image: {
     type: String,
   },
@@ -106,7 +110,10 @@ const DoctorSchema = new mongoose.Schema({
     {
       type:String,
     }
-  ]
+  ],
+  document:{
+    type:String
+  }
 },{timestamps:true});
 
 export default mongoose.model("Doctor", DoctorSchema);

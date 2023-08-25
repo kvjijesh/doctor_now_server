@@ -9,6 +9,7 @@ export const getAllDoctors = async (req, res, next) => {
   try {
     const allDoctors = await Doctor.find();
     if (!allDoctors) return next(createError(404, "No doctors found"));
+    console.log(allDoctors)
     res.status(200).json(allDoctors);
   } catch (error) {
     next(error);
@@ -16,11 +17,10 @@ export const getAllDoctors = async (req, res, next) => {
 };
 
 export const blockDoctor = async (req, res, next) => {
-  const { doctorId } = req.params;
-  const { blockedStatus } = req.body;
-  console.log(doctorId, blockedStatus);
 
   try {
+    const { doctorId } = req.params;
+    const { blockedStatus } = req.body;
     const doctor = await Doctor.findByIdAndUpdate(
       doctorId,
       { is_blocked: blockedStatus },
@@ -35,7 +35,7 @@ export const blockDoctor = async (req, res, next) => {
 export const blockUser = async (req, res, next) => {
   const { userId } = req.params;
   const { blockedStatus } = req.body;
-  console.log(userId, blockedStatus);
+
 
   try {
     const user = await User.findByIdAndUpdate(
@@ -65,7 +65,7 @@ export const approveDoctor = async (req, res, next) => {
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    const allUsers = await User.find();
+    const allUsers = await User.find({role:'user'});
     res.status(200).json(allUsers);
   } catch (error) {
     next(error);
@@ -77,12 +77,16 @@ export const addSpeciality = async (req, res, next) => {
     const { name } = req.body;
     if (req.file) {
       const image = req.file.filename;
-      console.log(image);
+
       const speciality = await Speciality.findOne({ name: name });
       if (speciality) return next(createError(409, "Already exist"));
       const newSpeciality = new Speciality({ name, image });
       newSpeciality.save();
-      res.status(201).json(newSpeciality);
+      res.status(201).json({
+        message: "Speciality added",
+        newSpeciality: newSpeciality
+      });
+
     } else {
       return next(createError(400, "Image should be uploaded"));
     }
@@ -104,10 +108,13 @@ export const deleteDepartment = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const deleteSlot = await Speciality.findByIdAndDelete(id);
-    if (!deleteSlot) return next(createError(404, "Department not found"));
-    res.status(200).json("deleted successfully");
+    const deleteSpeciality = await Speciality.findByIdAndDelete(id);
+    if (!deleteSpeciality) return next(createError(404, "Department not found"));
+    const department= await Speciality.find()
+    res.status(200).json({ message: "Deleted successfully", department: department });
+
   } catch (error) {
+    console.log(error)
     next(error);
   }
 };

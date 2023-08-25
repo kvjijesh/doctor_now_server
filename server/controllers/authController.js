@@ -16,54 +16,44 @@ export const registerUser = async (req, res, next) => {
     const { name, email, password, otp } = req.body;
     userCache.set(email, { name, email, password });
     const existingUser = await User.findOne({ email });
-
     if (existingUser) {
       return res.staus(409).send("User already exists");
     }
     const cOtp = await sendOtp(name, email);
     otpCache.set(email, { cOtp });
-
     res.status(200).send("OTP send");
   } catch (err) {
     next(err);
   }
 };
 
-
-export const resendOtp=async(req,res,next)=>{
+export const resendOtp = async (req, res, next) => {
   const { name, email, password, otp } = req.body;
   try {
     const cOtp = await sendOtp(name, email);
     otpCache.set(email, { cOtp });
     res.status(200).send("OTP send");
-
   } catch (error) {
-    next(error)
+    next(error);
   }
-
-}
+};
 
 export const verifyOtp = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
-    console.log(req.body);
     const user = userCache.get(email);
     const cacheOtp = otpCache.get(email);
-    console.log(otp, cacheOtp.cOtp);
     if (!user) return next(createError(404, "User not found"));
     if (cacheOtp.cOtp === otp) {
-      console.log("we are equal");
       const salt = bcrypt.genSaltSync(10);
       const hash = bcrypt.hashSync(user.password, salt);
-      console.log(hash);
       const newUser = new User({
-        name: user.name.charAt(0).toUpperCase()+user.name.slice(1),
+        name: user.name.charAt(0).toUpperCase() + user.name.slice(1),
         email: user.email,
         password: hash,
       });
 
       await newUser.save();
-
       userCache.del(email);
       otpCache.del(email);
       res.status(201).send("User created");
@@ -83,17 +73,16 @@ export const login = async (req, res, next) => {
     if (!user) {
       return next(createError(404, "User not found"));
     }
-     if(user.is_blocked) return next(createError(400, "Please contact admin"))
+    if (user.is_blocked) return next(createError(400, "Please contact admin"));
 
     const isCorrectPassword = await bcrypt.compare(pass, user.password);
     if (!isCorrectPassword)
       return next(createError(400, "Wrong email or password"));
-    const token = jwt.sign(
-      { id: user._id, is_Admin: user.is_Admin ,is_blocked:user.is_blocked},
-      process.env.JWT
-    );
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT);
+    console.log(user.role)
     const { password, ...otherDetails } = user._doc;
     res.status(200).json({ token, ...otherDetails });
+
   } catch (err) {
     next(err);
   }
@@ -120,7 +109,6 @@ export const registerDoctor = async (req, res, next) => {
 export const verifyDoctorOtp = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
-    console.log(req.body);
     const doctor = doctorCache.get(email);
     const cacheOtp = otpDoctorCache.get(email);
     if (!doctor) return next(createError(404, "User not found"));
@@ -129,7 +117,7 @@ export const verifyDoctorOtp = async (req, res, next) => {
       const hash = bcrypt.hashSync(doctor.password, salt);
 
       const newDoctor = new Doctor({
-        name: doctor.name.charAt(0).toUpperCase()+doctor.name.slice(1),
+        name: doctor.name.charAt(0).toUpperCase() + doctor.name.slice(1),
         email: doctor.email,
         password: hash,
       });
@@ -162,10 +150,15 @@ export const doctorLogin = async (req, res, next) => {
     if (!doctor) {
       return next(createError(404, "User not found"));
     }
+    if (doctor.is_blocked) return next(createError(400, "You are blocked Please contact admin"));
     const isCorrectPassword = await bcrypt.compare(pass, doctor.password);
     if (!isCorrectPassword)
       return next(createError(400, "Wrong email or password"));
-    const token = jwt.sign({ id: doctor._id }, process.env.JWT);
+    const token = jwt.sign(
+      { id: doctor._id, role: doctor.role },
+      process.env.JWT
+    );
+    console.log(doctor.role)
     const { password, ...otherDetails } = doctor._doc;
     res.status(200).json({ token, ...otherDetails });
   } catch (err) {

@@ -12,6 +12,7 @@ export const sendOtp = async (name, email) => {
         },
       });
       const otp = `${Math.floor(1000 + Math.random() * 90000)}`;
+      console.log(otp)
       const mailoption = {
         from: "kvjijesh2@gmail.com",
         to: email,

@@ -2,15 +2,18 @@ import Doctor from "../models/doctorModel.js";
 import Appointment from "../models/appointmentModel.js";
 import { createError } from "../utils/error.js";
 export const addDoctorDetails = async (req, res, next) => {
+
+  const id=req.body.id
+  console.log(req.body)
   try {
-    const existDoctor = await Doctor.findById(req.locals);
-    console.log(req.body);
+    const existDoctor = await Doctor.findById(id);
+
 
     if (!existDoctor) {
       return next(createError(404, "User not found"));
     }
     const updatedDoctor = await Doctor.findByIdAndUpdate(
-      { _id: req.locals },
+      { _id:id},
       { ...req.body },
       { new: true }
     );
@@ -90,7 +93,7 @@ export const updateProfile = async (req, res, next) => {
 };
 export const addslots = async (req, res, next) => {
   const { doctorId, selectedDate } = req.body;
-  console.log(selectedDate);
+
   try {
     const doctor = await Doctor.findById(doctorId);
     if (!doctor) {
@@ -128,10 +131,11 @@ export const deleteSlot = async (req, res, next) => {
 };
 
 export const appointmentList = async (req, res, next) => {
+
     const {id}=req.params;
   try {
 
-    const appointments = await Appointment.find({doctorId:id});
+    const appointments = await Appointment.find({doctorId:id}).sort({createdAt:-1}).populate('userId').populate('doctorId').exec();
     if (!appointments) return next(createError(404, "Appointments not found"));
     res.status(200).json(appointments);
   } catch (error) {

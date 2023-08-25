@@ -30,10 +30,12 @@ const AppointmentSchema = new mongoose.Schema({
       amount_paid:{
         type:Number,
       },
+      payment_status:{
+        type:String
+      },
       appointment_mode:{
         type:String,
         default:'offline'
-
       }
 
   }, {

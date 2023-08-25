@@ -1,5 +1,6 @@
 import express from 'express'
 import { login, verifyOtp,registerUser, logout, registerDoctor, verifyDoctorOtp, doctorLogin, doctorlogout, resendOtp} from '../controllers/authController.js';
+import { checkUserBlock } from '../middlewares/checkBlockStatus.js';
 
 const router=express.Router();
 router.post('/signup',registerUser)
