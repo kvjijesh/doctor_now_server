@@ -11,6 +11,8 @@ import adminRoute from "./routes/admin.js"
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import cors from "cors";
+import {Server} from 'socket.io';
+import socketManager from './config/socket.js'
 
 //middlewares
 app.use(cors());
@@ -36,7 +38,9 @@ app.use((err,req,res,next)=>{
 })
 
 const PORT=process.env.PORT||4000
-app.listen(PORT,()=>{
+const server=app.listen(PORT,()=>{
   console.log(`listening on port ` +PORT)
 })
 
+const io= new Server(server,{cors:true})
+socketManager(io);

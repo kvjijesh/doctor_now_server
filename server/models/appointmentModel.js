@@ -16,7 +16,7 @@ const AppointmentSchema = new mongoose.Schema({
       },
       status: {
         type: String,
-        default: "Pending",
+        default: "pending",
       },
       appointment_id:{
         type:Number
@@ -25,7 +25,7 @@ const AppointmentSchema = new mongoose.Schema({
         type:String
       },
       payment_mode:{
-        type:String,
+        type:[String],
       },
       amount_paid:{
         type:Number,
@@ -36,7 +36,17 @@ const AppointmentSchema = new mongoose.Schema({
       appointment_mode:{
         type:String,
         default:'offline'
-      }
+      },
+      findings:{
+        type:String
+      },
+      prescription:[
+        {
+          medicine:{type:String},
+          frequency:{type:String}
+        }
+      ],
+      advice:{type:String}
 
   }, {
     timestamps: true,

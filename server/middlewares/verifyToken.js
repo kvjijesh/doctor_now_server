@@ -17,22 +17,14 @@ export const verifyToken = (req, res, next) => {
     next();
   });
 };
-export const verifyUser = (req, res, next) => {
+export const verifyUser = (role) =>(req, res, next) => {
     verifyToken(req, res, () => {
-
-      if (res.locals.userId === req.params.id || res.locals.userRole === 'user') {
+        
+      if (res.locals.userRole === role) {
         next();
       } else {
         return next(createError(403, "You are not authorized"));
       }
     });
   };
-export const verifyAdmin = (req, res, next) => {
-  verifyToken(req, res, () => {
-    if (res.locals.userRole === 'admin') {
-      next();
-    } else {
-      return next(createError(403, "You are not authorized as an admin"));
-    }
-  });
-};
+

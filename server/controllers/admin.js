@@ -2,14 +2,13 @@ import Doctor from "../models/doctorModel.js";
 import { createError } from "../utils/error.js";
 import User from "../models/userModel.js";
 import Speciality from "../models/specialityModel.js";
-import Appointment from '../models/appointmentModel.js'
+import Appointment from "../models/appointmentModel.js";
 //get all doctors
 
 export const getAllDoctors = async (req, res, next) => {
   try {
     const allDoctors = await Doctor.find();
     if (!allDoctors) return next(createError(404, "No doctors found"));
-    console.log(allDoctors)
     res.status(200).json(allDoctors);
   } catch (error) {
     next(error);
@@ -17,7 +16,6 @@ export const getAllDoctors = async (req, res, next) => {
 };
 
 export const blockDoctor = async (req, res, next) => {
-
   try {
     const { doctorId } = req.params;
     const { blockedStatus } = req.body;
@@ -35,7 +33,6 @@ export const blockDoctor = async (req, res, next) => {
 export const blockUser = async (req, res, next) => {
   const { userId } = req.params;
   const { blockedStatus } = req.body;
-
 
   try {
     const user = await User.findByIdAndUpdate(
@@ -65,7 +62,7 @@ export const approveDoctor = async (req, res, next) => {
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    const allUsers = await User.find({role:'user'});
+    const allUsers = await User.find({ role: "user" });
     res.status(200).json(allUsers);
   } catch (error) {
     next(error);
@@ -84,9 +81,8 @@ export const addSpeciality = async (req, res, next) => {
       newSpeciality.save();
       res.status(201).json({
         message: "Speciality added",
-        newSpeciality: newSpeciality
+        newSpeciality: newSpeciality,
       });
-
     } else {
       return next(createError(400, "Image should be uploaded"));
     }
@@ -109,26 +105,61 @@ export const deleteDepartment = async (req, res, next) => {
     const { id } = req.params;
 
     const deleteSpeciality = await Speciality.findByIdAndDelete(id);
-    if (!deleteSpeciality) return next(createError(404, "Department not found"));
-    const department= await Speciality.find()
-    res.status(200).json({ message: "Deleted successfully", department: department });
-
+    if (!deleteSpeciality)
+      return next(createError(404, "Department not found"));
+    const department = await Speciality.find();
+    res
+      .status(200)
+      .json({ message: "Deleted successfully", department: department });
   } catch (error) {
-    console.log(error)
     next(error);
   }
 };
 
-export const allBookings=async(req,res,next)=>{
-
+export const allBookings = async (req, res, next) => {
   try {
-    const bookings= await Appointment.find().populate('userId').populate('doctorId').exec();
-    if(!bookings) return next(createError(404,"No bookings found"));
-    res.status(200).json(bookings)
-
+    const bookings = await Appointment.find()
+      .sort({ createdAt: -1 })
+      .populate("userId")
+      .populate("doctorId")
+      .exec();
+    if (!bookings) return next(createError(404, "No bookings found"));
+    res.status(200).json(bookings);
   } catch (error) {
-    next(error)
-
+    console.log(error);
+    next(createError(500, "Internal server error"));
   }
+};
+export const userCont = async (req, res, next) => {
+  try {
+    const userCount = await User.countDocuments();
+    if (!userCount) return next(createError(404, "No users found"));
+    res.status(200).json(userCount);
+  } catch (error) {
+    next(error);
+  }
+};
+export const docCount = async (req, res, next) => {
+  try {
+    const doctorCount = await Doctor.countDocuments();
+    if (!doctorCount) return next(createError(404, "No doctors found"));
+    res.status(200).json(doctorCount);
+  } catch (error) {
+    next(error);
+  }
+};
 
-}
+export const totalRevenue = async (req, res, next) => {
+  try {
+    const sum = await Appointment.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalAmountPaid: { $sum: "$amount_paid" },
+        },
+      },
+    ]);
+
+    res.status(200).json({ totalAmountPaid: sum[0]?.totalAmountPaid || 0 });
+  } catch (error) {}
+};

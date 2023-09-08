@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import Doctor from "../models/doctorModel.js";
+import Review from '../models/reviewModel.js'
 import Appointment from "../models/appointmentModel.js";
 import { createError } from "../utils/error.js";
 import Speciality from "../models/specialityModel.js";
@@ -20,7 +21,16 @@ export const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const { userName, userEmail, userMobile, userStreet, userCity, userState, userPin, imgUrl } = req.body;
+    const {
+      userName,
+      userEmail,
+      userMobile,
+      userStreet,
+      userCity,
+      userState,
+      userPin,
+      imgUrl,
+    } = req.body;
 
     const updatedUserData = {
       name: userName,
@@ -35,7 +45,7 @@ export const updateUser = async (req, res, next) => {
     const user = await User.findByIdAndUpdate(id, updatedUserData, {
       new: true,
     });
-    if(!user) return next(createError(404,"User not found"))
+    if (!user) return next(createError(404, "User not found"));
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: "Failed to update user details." });
@@ -56,14 +66,17 @@ export const confirmAppointment = async (metadata, paymentdata, req, res) => {
   const { doctorId, slot, userId } = metadata;
 
   try {
-    const existAppointment = await Appointment.findOne({ slot: slot });
+    // const existAppointment = await Appointment.findOne({ slot: slot });
 
-    if (existAppointment) return res.status(409).send("already exist");
+    // if (existAppointment) return res.status(409).send("already exist");
     const appointment = new Appointment({
       userId,
       doctorId,
       slot,
       appointment_id: Math.floor(Math.random() * 1000000 + 1),
+      payment_mode: paymentdata.payment_method_types,
+      payment_status: paymentdata.status,
+      amount_paid: paymentdata.amount_received / 100,
     });
     appointment.save();
     const doctor = await Doctor.findByIdAndUpdate(
@@ -89,6 +102,7 @@ export const allDept = async (req, res, next) => {
 
 export const userBooking = async (req, res, next) => {
   try {
+
     const { id } = req.params;
     const bookings = await Appointment.find({ userId: id })
       .sort({ createdAt: -1 })
@@ -98,6 +112,7 @@ export const userBooking = async (req, res, next) => {
     if (!bookings) next(createError(404, "No Bookings available"));
     res.status(200).json(bookings);
   } catch (error) {
+
     next(error);
   }
 };
@@ -123,8 +138,12 @@ export const cancellBooking = async (req, res, next) => {
   }
 };
 
-export const stripeSession = async (req, res) => {
+export const stripeSession = async (req, res, next) => {
   const { doctorData, user, slot } = req.body;
+  const existAppointment = await Appointment.findOne({ slot: slot });
+
+  if (existAppointment)
+    return next(createError(409, " Appointment already exist"));
   const customer = await stripe.customers.create({
     metadata: {
       userId: user._id,
@@ -173,17 +192,30 @@ export const webhooks = async (req, res) => {
     });
   }
 
-  //res.send().end()
+  // res.end();
 };
 
-export const findUser=async(req,res,next)=>{
+export const findUser = async (req, res, next) => {
   try {
-    console.log(req.body)
-
-    const user=await User.findById()
-    if(!user) return  next(createError(404,"User Notfound"));
-    res.status(200).json(user)
+    const user = await User.findById();
+    if (!user) return next(createError(404, "User Notfound"));
+    res.status(200).json(user);
   } catch (error) {
-next(error)
+    next(error);
+  }
+};
+
+export const rating= async(req,res,next)=>{
+  try {
+    const{userId,doctorId,value,review}=req.body;
+    const rating= new Review({
+      userId,doctorId,rating:value,feeedback:review
+    })
+    await rating.save()
+    if(!rating) return next(createError(404,'Ratings not generated'));
+    res.status(201).json({rating,message:"Ratings added"})
+
+  } catch (error) {
+    next(error)
   }
 }

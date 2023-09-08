@@ -79,7 +79,6 @@ export const login = async (req, res, next) => {
     if (!isCorrectPassword)
       return next(createError(400, "Wrong email or password"));
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT);
-    console.log(user.role)
     const { password, ...otherDetails } = user._doc;
     res.status(200).json({ token, ...otherDetails });
 
@@ -158,7 +157,6 @@ export const doctorLogin = async (req, res, next) => {
       { id: doctor._id, role: doctor.role },
       process.env.JWT
     );
-    console.log(doctor.role)
     const { password, ...otherDetails } = doctor._doc;
     res.status(200).json({ token, ...otherDetails });
   } catch (err) {

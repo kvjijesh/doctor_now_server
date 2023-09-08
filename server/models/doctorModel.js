@@ -113,7 +113,8 @@ const DoctorSchema = new mongoose.Schema({
   ],
   document:{
     type:String
-  }
+  },
+  payments:{type:Number,default:0}
 },{timestamps:true});
 
 export default mongoose.model("Doctor", DoctorSchema);
