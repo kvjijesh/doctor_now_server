@@ -54,6 +54,13 @@ export const approveDoctor = async (req, res, next) => {
       isVerified: true,
     });
     if (!doctor) return next(createError(404, "Doctor not found"));
+    const approvalNotification = {
+      message: 'Your account has been approved by the admin.',
+      timestamp: new Date(),
+      read: false,
+    };
+    doctor.notifications.push(approvalNotification);
+    await doctor.save();
     return res.status(201).json({ success: true, message: "Approved" });
   } catch (error) {
     next(error);
@@ -71,9 +78,10 @@ export const getAllUsers = async (req, res, next) => {
 
 export const addSpeciality = async (req, res, next) => {
   try {
-    const { name } = req.body;
-    if (req.file) {
-      const image = req.file.filename;
+    const { name,image } = req.body;
+    console.log(req.body);
+    if (image) {
+      
 
       const speciality = await Speciality.findOne({ name: name });
       if (speciality) return next(createError(409, "Already exist"));

@@ -1,6 +1,6 @@
 import User from "../models/userModel.js";
 import Doctor from "../models/doctorModel.js";
-import Review from '../models/reviewModel.js'
+import Review from "../models/reviewModel.js";
 import Appointment from "../models/appointmentModel.js";
 import { createError } from "../utils/error.js";
 import Speciality from "../models/specialityModel.js";
@@ -54,7 +54,7 @@ export const updateUser = async (req, res, next) => {
 
 export const availableDoctors = async (req, res, next) => {
   try {
-    const doctors = await Doctor.find({ isVerified: true, is_submitted: true });
+    const doctors = await Doctor.find({ isVerified: true, is_submitted: true }).populate('specialisation').exec();
     if (!doctors) return;
     res.status(200).json(doctors);
   } catch (error) {
@@ -102,7 +102,6 @@ export const allDept = async (req, res, next) => {
 
 export const userBooking = async (req, res, next) => {
   try {
-
     const { id } = req.params;
     const bookings = await Appointment.find({ userId: id })
       .sort({ createdAt: -1 })
@@ -112,7 +111,6 @@ export const userBooking = async (req, res, next) => {
     if (!bookings) next(createError(404, "No Bookings available"));
     res.status(200).json(bookings);
   } catch (error) {
-
     next(error);
   }
 };
@@ -159,7 +157,7 @@ export const stripeSession = async (req, res, next) => {
           product_data: {
             name: `Dr.${doctorData.name}`,
           },
-          unit_amount: `${doctorData?.offlineFee * 100}`,
+          unit_amount: `${doctorData?.videoChatFee * 100}`,
         },
         quantity: 1,
       },
@@ -176,6 +174,7 @@ export const stripeSession = async (req, res, next) => {
 export const webhooks = async (req, res) => {
   let signInSecret = `${process.env.STRIPE_WEBHOOK_KEY}`;
   const payload = req.body;
+  console.log(payload);
 
   const sig = req.headers["stripe-signature"];
   let event;
@@ -205,17 +204,86 @@ export const findUser = async (req, res, next) => {
   }
 };
 
-export const rating= async(req,res,next)=>{
+export const rating = async (req, res, next) => {
   try {
-    const{userId,doctorId,value,review}=req.body;
-    const rating= new Review({
-      userId,doctorId,rating:value,feeedback:review
-    })
-    await rating.save()
-    if(!rating) return next(createError(404,'Ratings not generated'));
-    res.status(201).json({rating,message:"Ratings added"})
-
+    const { userId, doctorId, value, review } = req.body;
+    const rating = new Review({
+      userId,
+      doctorId,
+      rating: value,
+      feeedback: review,
+    });
+    await rating.save();
+    if (!rating) return next(createError(404, "Ratings not generated"));
+    res.status(201).json({ rating, message: "Ratings added" });
   } catch (error) {
-    next(error)
+    next(error);
+  }
+};
+
+export const getRatings = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log(id);
+    const { page, limit } = req.query;
+    const skip = (page - 1) * limit;
+    const allRatings = await Review.find({ doctorId: id })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 })
+      .populate("userId")
+      .exec();
+    if (!allRatings) return next(createError(404, "No reviews found"));
+    const result = await Review.find({ doctorId: id });
+    if(result.length===0) return res.json({allRatings,averageRating:0})
+    const totalRatings = result.reduce((acc, rating) => acc + rating.rating, 0);
+    const averageRating = (totalRatings / result.length).toFixed(1);
+    console.log(averageRating);
+    res.status(200).json({allRatings,averageRating});
+  } catch (error) {
+    console.log(error);
+    next(createError(500, `Internal server error`));
+  }
+};
+
+export const updateUserNotification = async (req, res, next) => {
+  try {
+    const { id, notification } = req.body;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const existNotification = user.notifications.find(
+      (n) => n._id.toString() === notification
+    );
+
+    if (!existNotification) {
+      return next(createError(404, "Notification not fond"));
+    }
+
+    existNotification.read = true;
+
+    await user.save();
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    return next(createError(500, "Internal server error"));
+  }
+};
+
+export const getDoctorsByDepartment=async(req,res,next)=>{
+  try {
+          const {id}=req.params
+          console.log(id);
+          const doctors= await Doctor.find({specialisation:id,is_submitted:true}).populate('specialisation').exec()
+          console.log(doctors);
+          if(!doctors) return next(createError(404,'Doctors not found'));
+          res.status(200).json(doctors)
+  } catch (error) {
+      return next(createError(500,"Internal server error"))
   }
 }

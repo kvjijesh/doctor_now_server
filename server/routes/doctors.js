@@ -1,5 +1,5 @@
 import express from "express";
-import { addDoctorDetails, addslots, appointmentList, deleteSlot, endAppointment, prescription, totalAppointments, updateAppointment, updateProfile } from "../controllers/doctorController.js";
+import { addDoctorDetails, addslots, appointmentList, deleteSlot, endAppointment, prescription, totalAppointments, updateAppointment, updateNotification, updateProfile } from "../controllers/doctorController.js";
 import { verifyUser } from "../middlewares/verifyToken.js";
 import {upload, uploadDocument} from '../utils/multerConfig.js'
 import { checkUserBlock } from "../middlewares/checkBlockStatus.js";
@@ -13,6 +13,7 @@ router.get('/appointment-list/:id',verifyUser('doctor'),checkUserBlock,appointme
 router.put('/update-status/:id',verifyUser('doctor'),checkUserBlock,updateAppointment);
 router.put('/generate-prescription',verifyUser('doctor'),checkUserBlock,prescription)
 router.patch('/endAppointment/:id',verifyUser('doctor'),checkUserBlock,endAppointment)
-router.get('/total-appointments/:id',verifyUser('doctor'),totalAppointments)
+router.get('/total-appointments/:id',verifyUser('doctor'),checkUserBlock,totalAppointments)
+router.put('/update-notification',verifyUser('doctor'),checkUserBlock,updateNotification)
 
 export default router;

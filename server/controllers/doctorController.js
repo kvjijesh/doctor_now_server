@@ -1,14 +1,17 @@
 import Doctor from "../models/doctorModel.js";
+import User from '../models/userModel.js'
 import Appointment from "../models/appointmentModel.js";
 import { createError } from "../utils/error.js";
 export const addDoctorDetails = async (req, res, next) => {
   const id = req.body.id;
+  console.log(req.body);
   try {
     const existDoctor = await Doctor.findById(id);
 
     if (!existDoctor) {
       return next(createError(404, "User not found"));
     }
+
     const updatedDoctor = await Doctor.findByIdAndUpdate(
       { _id: id },
       { ...req.body.newValues },
@@ -16,6 +19,7 @@ export const addDoctorDetails = async (req, res, next) => {
     );
     return res.status(201).json({ updatedDoctor });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -96,6 +100,7 @@ export const addslots = async (req, res, next) => {
     if (!doctor) {
       return next(createError(404, "Doctor not found"));
     }
+    if(!doctor.isVerified) return next(createError(401,"You are not verified"))
     if (doctor.availableSlots.includes(selectedDate)) {
       return next(createError(409, "slot already exists"));
     }
@@ -151,6 +156,16 @@ export const updateAppointment = async (req, res, next) => {
       { new: true }
     );
     if (!appointment) return next(createError(404, "Appointment not found"));
+    const userid=appointment.userId;
+    const user=await User.findById(userid)
+    console.log(user);
+    const notification = {
+      message: `Your appointment is ${status}`,
+      timestamp: new Date(),
+      read: false,
+    };
+    user.notifications.push(notification);
+    await user.save()
     res.status(200).json({ appointment, message: "Appointment updated" });
   } catch (error) {
     next(error);
@@ -212,3 +227,34 @@ export const totalAppointments= async(req,res,next)=>{
     next(error)
   }
 }
+
+
+
+export const updateNotification = async (req, res, next) => {
+  try {
+    const { id, notification } = req.body;
+
+    const doctor = await Doctor.findById(id);
+
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+
+    const existNotification = doctor.notifications.find(
+      (n) => n._id.toString() === notification
+    );
+
+    if (!existNotification) {
+      return next(createError(404,"Notification not fond"))
+    }
+
+    existNotification.read = true;
+
+    await doctor.save();
+
+    return res.status(200).json(doctor);
+  } catch (error) {
+    console.error(error);
+    return next(createError(500,"Internal server error"))
+  }
+};

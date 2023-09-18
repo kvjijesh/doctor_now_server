@@ -77,6 +77,13 @@ const UserSchema= new mongoose.Schema({
     },
     pin:{
         type:String
-    }
+    },
+    notifications: [
+        {
+          message: String,
+          timestamp: Date,
+          read: Boolean,
+        },
+    ]
 })
 export default mongoose.model("User",UserSchema)

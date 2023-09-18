@@ -10,7 +10,7 @@ router.get('/departments',verifyUser('admin'),getDepartments)
 router.put('/block-doctor/:doctorId',verifyUser('admin'),blockDoctor)
 router.put('/block-user/:userId',verifyUser('admin'),blockUser)
 router.put('/approve/:doctorId',verifyUser('admin'),approveDoctor)
-router.post('/add-department',verifyUser('admin'),upload.single('image'),addSpeciality);
+router.post('/add-department',verifyUser('admin'),addSpeciality);
 router.delete('/delete-department/:id',verifyUser('admin'),deleteDepartment);
 router.get('/all-bookings',verifyUser('admin'),allBookings)
 router.get('/user-count',verifyUser('admin'),userCont)

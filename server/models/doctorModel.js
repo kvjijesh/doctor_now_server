@@ -28,8 +28,8 @@ const DoctorSchema = new mongoose.Schema({
     type: String,
   },
   specialisation: {
-    // type:Schema.Types.ObjectId ,ref:"Specialisation";
-    type:String,
+    type:Schema.Types.ObjectId ,ref:"Specialisation"
+
   },
   qualification: {
     type: [String],
@@ -114,7 +114,14 @@ const DoctorSchema = new mongoose.Schema({
   document:{
     type:String
   },
-  payments:{type:Number,default:0}
+  payments:{type:Number,default:0},
+  notifications: [
+    {
+      message: String,
+      timestamp: Date,
+      read: Boolean,
+    },
+  ]
 },{timestamps:true});
 
 export default mongoose.model("Doctor", DoctorSchema);

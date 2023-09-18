@@ -83,7 +83,7 @@ export const login = async (req, res, next) => {
     res.status(200).json({ token, ...otherDetails });
 
   } catch (err) {
-    next(err);
+    next(createError(500,"Server Error"))
   }
 };
 
@@ -145,7 +145,7 @@ export const doctorLogin = async (req, res, next) => {
   try {
     const email = req.body.email;
     const pass = req.body.password;
-    const doctor = await Doctor.findOne({ email });
+    const doctor = await Doctor.findOne({ email })?.populate('specialisation').exec();
     if (!doctor) {
       return next(createError(404, "User not found"));
     }
