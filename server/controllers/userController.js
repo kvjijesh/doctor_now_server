@@ -174,7 +174,7 @@ export const stripeSession = async (req, res, next) => {
 export const webhooks = async (req, res) => {
   let signInSecret = `${process.env.STRIPE_WEBHOOK_KEY}`;
   const payload = req.body;
-  console.log(payload);
+  
 
   const sig = req.headers["stripe-signature"];
   let event;
