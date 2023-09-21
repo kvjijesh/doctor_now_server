@@ -182,6 +182,7 @@ export const webhooks = async (req, res) => {
   try {
     event = stripe.webhooks.constructEvent(payload, sig, signInSecret);
   } catch (error) {
+    console.log(error)
     res.status(400).json({ success: true });
     return;
   }

@@ -29,7 +29,7 @@ export const updateProfile = async (req, res, next) => {
     name,
     email,
     mobile,
-    specialisation,
+    //specialisation,
     qualification,
     registrationNumber,
     registrationCouncil,
@@ -46,7 +46,7 @@ export const updateProfile = async (req, res, next) => {
       name,
       email,
       mobile,
-      specialisation,
+      // specialisation,
       qualification,
       registrationNumber,
       registrationCouncil,
@@ -61,7 +61,7 @@ export const updateProfile = async (req, res, next) => {
     try {
       const doctor = await Doctor.findByIdAndUpdate(id, updatedDoctor, {
         new: true,
-      });
+      }).populate('specialisation').exec();
       res.json(doctor);
     } catch (error) {
       next(error);
@@ -71,7 +71,7 @@ export const updateProfile = async (req, res, next) => {
       name,
       email,
       mobile,
-      specialisation,
+      //specialisation,
       qualification,
       registrationNumber,
       registrationCouncil,
@@ -85,7 +85,7 @@ export const updateProfile = async (req, res, next) => {
     try {
       const doctor = await Doctor.findByIdAndUpdate(id, updatedDoctor, {
         new: true,
-      });
+      }).populate('specialisation').exec();
       res.json(doctor);
     } catch (error) {
       next(error);
