@@ -4,7 +4,7 @@ import Appointment from "../models/appointmentModel.js";
 import { createError } from "../utils/error.js";
 export const addDoctorDetails = async (req, res, next) => {
   const id = req.body.id;
-  console.log(req.body);
+
   try {
     const existDoctor = await Doctor.findById(id);
 
@@ -158,7 +158,6 @@ export const updateAppointment = async (req, res, next) => {
     if (!appointment) return next(createError(404, "Appointment not found"));
     const userid=appointment.userId;
     const user=await User.findById(userid)
-    console.log(user);
     const notification = {
       message: `Your appointment is ${status}`,
       timestamp: new Date(),
@@ -215,10 +214,9 @@ export const endAppointment = async (req, res, next) => {
 };
 
 export const totalAppointments= async(req,res,next)=>{
-  console.log(req.params);
+
   try {
     const {id}=req.params;
-    console.log(id);
     const totalAppointments= await Appointment.find({doctorId:id}).count();
     if(!totalAppointments) return next(createError(404,"No Appointments found"))
     res.status(200).json(totalAppointments)

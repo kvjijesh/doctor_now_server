@@ -54,8 +54,10 @@ export const updateUser = async (req, res, next) => {
 
 export const availableDoctors = async (req, res, next) => {
   try {
-    const doctors = await Doctor.find({ isVerified: true, is_submitted: true }).populate('specialisation').exec();
-    if (!doctors) return;
+    const doctors = await Doctor.find({ isVerified: true, is_submitted: true })
+      .populate("specialisation")
+      .exec();
+    if (!doctors) return next(createError(404, "No doctors found"));
     res.status(200).json(doctors);
   } catch (error) {
     next(error);
@@ -174,7 +176,6 @@ export const stripeSession = async (req, res, next) => {
 export const webhooks = async (req, res) => {
   let signInSecret = `${process.env.STRIPE_WEBHOOK_KEY}`;
   const payload = req.body;
-  
 
   const sig = req.headers["stripe-signature"];
   let event;
@@ -224,7 +225,6 @@ export const rating = async (req, res, next) => {
 export const getRatings = async (req, res, next) => {
   try {
     const { id } = req.params;
-    console.log(id);
     const { page, limit } = req.query;
     const skip = (page - 1) * limit;
     const allRatings = await Review.find({ doctorId: id })
@@ -235,11 +235,10 @@ export const getRatings = async (req, res, next) => {
       .exec();
     if (!allRatings) return next(createError(404, "No reviews found"));
     const result = await Review.find({ doctorId: id });
-    if(result.length===0) return res.json({allRatings,averageRating:0})
+    if (result.length === 0) return res.json({ allRatings, averageRating: 0 });
     const totalRatings = result.reduce((acc, rating) => acc + rating.rating, 0);
     const averageRating = (totalRatings / result.length).toFixed(1);
-    console.log(averageRating);
-    res.status(200).json({allRatings,averageRating});
+    res.status(200).json({ allRatings, averageRating });
   } catch (error) {
     console.log(error);
     next(createError(500, `Internal server error`));
@@ -275,15 +274,32 @@ export const updateUserNotification = async (req, res, next) => {
   }
 };
 
-export const getDoctorsByDepartment=async(req,res,next)=>{
+export const getDoctorsByDepartment = async (req, res, next) => {
   try {
-          const {id}=req.params
-          console.log(id);
-          const doctors= await Doctor.find({specialisation:id,is_submitted:true}).populate('specialisation').exec()
-          console.log(doctors);
-          if(!doctors) return next(createError(404,'Doctors not found'));
-          res.status(200).json(doctors)
+    const { id } = req.params;
+
+    const doctors = await Doctor.find({
+      specialisation: id,
+      is_submitted: true,
+      isVerified: true,
+    })
+      .populate("specialisation")
+      .exec();
+    if (!doctors) return next(createError(404, "Doctors not found"));
+    res.status(200).json(doctors);
   } catch (error) {
-      return next(createError(500,"Internal server error"))
+    return next(createError(500, "Internal server error"));
   }
-}
+};
+
+export const topDoctors = async (req, res, next) => {
+  try {
+    const topDoctors = await Doctor.find().populate('specialisation').limit(4).exec();
+    if (!topDoctors) return next(createError(404, "Doctors not found"));
+
+    res.status(200).json(topDoctors);
+  } catch (error) {
+    console.error(error);
+    return next(createError(500, "Internal server error"));
+  }
+};

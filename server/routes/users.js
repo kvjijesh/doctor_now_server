@@ -1,6 +1,6 @@
 import express from 'express'
 import User from "../models/userModel.js"
-import { allDept, availableDoctors, cancellBooking, confirmAppointment, findUser, getDoctorsByDepartment, getRatings, getUsers, rating, stripeSession, updateUser, updateUserNotification, userBooking, webhooks } from '../controllers/userController.js';
+import { allDept, availableDoctors, cancellBooking, confirmAppointment, findUser, getDoctorsByDepartment, getRatings, getUsers, rating, stripeSession, topDoctors, updateUser, updateUserNotification, userBooking, webhooks } from '../controllers/userController.js';
 import {  verifyUser } from '../middlewares/verifyToken.js';
 import {upload} from '../utils/multerConfig.js';
 import {checkUserBlock} from '../middlewares/checkBlockStatus.js'
@@ -20,4 +20,5 @@ router.post('/ratings',verifyUser('user'),checkUserBlock,rating)
 router.get('/get-ratings/:id',getRatings)
 router.put('/update-usernotification',verifyUser('user'),checkUserBlock,updateUserNotification)
 router.get('/doctors-by-department/:id',getDoctorsByDepartment)
+router.get('/top-doctors',topDoctors)
 export default router
