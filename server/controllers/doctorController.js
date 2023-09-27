@@ -1,7 +1,8 @@
 import Doctor from "../models/doctorModel.js";
-import User from '../models/userModel.js'
+import User from "../models/userModel.js";
 import Appointment from "../models/appointmentModel.js";
 import { createError } from "../utils/error.js";
+import Review from "../models/reviewModel.js";
 export const addDoctorDetails = async (req, res, next) => {
   const id = req.body.id;
 
@@ -61,7 +62,9 @@ export const updateProfile = async (req, res, next) => {
     try {
       const doctor = await Doctor.findByIdAndUpdate(id, updatedDoctor, {
         new: true,
-      }).populate('specialisation').exec();
+      })
+        .populate("specialisation")
+        .exec();
       res.json(doctor);
     } catch (error) {
       next(error);
@@ -85,7 +88,9 @@ export const updateProfile = async (req, res, next) => {
     try {
       const doctor = await Doctor.findByIdAndUpdate(id, updatedDoctor, {
         new: true,
-      }).populate('specialisation').exec();
+      })
+        .populate("specialisation")
+        .exec();
       res.json(doctor);
     } catch (error) {
       next(error);
@@ -100,7 +105,8 @@ export const addslots = async (req, res, next) => {
     if (!doctor) {
       return next(createError(404, "Doctor not found"));
     }
-    if(!doctor.isVerified) return next(createError(401,"You are not verified"))
+    if (!doctor.isVerified)
+      return next(createError(401, "You are not verified"));
     if (doctor.availableSlots.includes(selectedDate)) {
       return next(createError(409, "slot already exists"));
     }
@@ -156,15 +162,15 @@ export const updateAppointment = async (req, res, next) => {
       { new: true }
     );
     if (!appointment) return next(createError(404, "Appointment not found"));
-    const userid=appointment.userId;
-    const user=await User.findById(userid)
+    const userid = appointment.userId;
+    const user = await User.findById(userid);
     const notification = {
       message: `Your appointment is ${status}`,
       timestamp: new Date(),
       read: false,
     };
     user.notifications.push(notification);
-    await user.save()
+    await user.save();
     res.status(200).json({ appointment, message: "Appointment updated" });
   } catch (error) {
     next(error);
@@ -172,7 +178,6 @@ export const updateAppointment = async (req, res, next) => {
 };
 
 export const prescription = async (req, res, next) => {
-
   try {
     const { findings, medicines, advice, id } = req.body;
     const appointment = await Appointment.findById(id);
@@ -192,7 +197,6 @@ export const prescription = async (req, res, next) => {
 
 export const endAppointment = async (req, res, next) => {
   try {
-
     const { id } = req.params;
     const updateAppointment = await Appointment.findByIdAndUpdate(
       id,
@@ -201,11 +205,16 @@ export const endAppointment = async (req, res, next) => {
     );
     if (!updateAppointment)
       return next(createError(404, " Appointment not found"));
-    const docId=updateAppointment.doctorId
-    const doctor= await Doctor.findById(docId);
-    if(!doctor) return next(createError(404,"Doctor not found"))
-    const amount=(doctor?.payments)+(updateAppointment.amount_paid)*80/100
-    const updateFees= await Doctor.findByIdAndUpdate(docId,{payments:amount},{new:true})
+    const docId = updateAppointment.doctorId;
+    const doctor = await Doctor.findById(docId);
+    if (!doctor) return next(createError(404, "Doctor not found"));
+    const amount =
+      doctor?.payments + (updateAppointment.amount_paid * 80) / 100;
+    const updateFees = await Doctor.findByIdAndUpdate(
+      docId,
+      { payments: amount },
+      { new: true }
+    );
     res.status(200).json({ updateAppointment, message: "Appointment Ended" });
   } catch (error) {
     console.log(error);
@@ -213,20 +222,17 @@ export const endAppointment = async (req, res, next) => {
   }
 };
 
-export const totalAppointments= async(req,res,next)=>{
-
+export const totalAppointments = async (req, res, next) => {
   try {
-    const {id}=req.params;
-    const totalAppointments= await Appointment.find({doctorId:id}).count();
-    if(!totalAppointments) return next(createError(404,"No Appointments found"))
-    res.status(200).json(totalAppointments)
-
+    const { id } = req.params;
+    const totalAppointments = await Appointment.find({ doctorId: id }).count();
+    if (!totalAppointments)
+      return next(createError(404, "No Appointments found"));
+    res.status(200).json(totalAppointments);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
-
-
+};
 
 export const updateNotification = async (req, res, next) => {
   try {
@@ -235,7 +241,7 @@ export const updateNotification = async (req, res, next) => {
     const doctor = await Doctor.findById(id);
 
     if (!doctor) {
-      return res.status(404).json({ message: 'Doctor not found' });
+      return res.status(404).json({ message: "Doctor not found" });
     }
 
     const existNotification = doctor.notifications.find(
@@ -243,7 +249,7 @@ export const updateNotification = async (req, res, next) => {
     );
 
     if (!existNotification) {
-      return next(createError(404,"Notification not fond"))
+      return next(createError(404, "Notification not fond"));
     }
 
     existNotification.read = true;
@@ -253,6 +259,19 @@ export const updateNotification = async (req, res, next) => {
     return res.status(200).json(doctor);
   } catch (error) {
     console.error(error);
-    return next(createError(500,"Internal server error"))
+    return next(createError(500, "Internal server error"));
+  }
+};
+
+export const getDoctorReviwes = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const reviews = await Review.find({ doctorId: id }).sort({createdAt:-1})
+      .populate("userId")
+      .exec();
+    if (!reviews) return next(createError(404, "No reviews found"));
+    res.status(200).json(reviews);
+  } catch (error) {
+    return next(createError(500, "Internal server error"));
   }
 };
