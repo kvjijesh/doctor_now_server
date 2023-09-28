@@ -4,7 +4,7 @@ import Appointment from "../models/appointmentModel.js";
 import { createError } from "../utils/error.js";
 import Review from "../models/reviewModel.js";
 export const addDoctorDetails = async (req, res, next) => {
-  const id = req.body.id;
+  const id = req.body.id
 
   try {
     const existDoctor = await Doctor.findById(id);
